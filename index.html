@@ -1,0 +1,57 @@
+html
+button { background:#3b82f6; color:white; border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; }
+ul { list-style:none; padding:0; margin:0; }
+li { display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid #334155; }
+audio { width:100%; margin-top:10px; }
+</style>
+</head>
+<body>
+<h1>🎵 SoundEra</h1>
+<div class="box">
+<form id="uploadForm">
+<input type="file" name="track" accept="audio/*" required>
+<button>Загрузить</button>
+</form>
+</div>
+
+<div class="box">
+<h2>Треки</h2>
+<ul id="list"></ul>
+</div>
+
+<div class="box">
+<h2>Плеер</h2>
+<audio id="player" controls></audio>
+</div>
+
+<script>
+const listEl = document.getElementById('list');
+const player = document.getElementById('player');
+
+async function loadTracks(){
+const res = await fetch('/tracks');
+const tracks = await res.json();
+listEl.innerHTML = '';
+tracks.forEach(t => {
+const li = document.createElement('li');
+li.innerHTML = `<span>${t.name}</span><button>▶</button>`;
+li.querySelector('button').onclick = () => {
+player.src = t.url;
+player.play();
+};
+listEl.appendChild(li);
+});
+}
+
+document.getElementById('uploadForm').onsubmit = async (e) => {
+e.preventDefault();
+const fd = new FormData(e.target);
+await fetch('/upload', { method: 'POST', body: fd });
+e.target.reset();
+loadTracks();
+};
+
+loadTracks();
+</script>
+</body>
+</html>
